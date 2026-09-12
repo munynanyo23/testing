@@ -657,45 +657,25 @@
             audioElement.setAttribute('src', 'beep.mp3');
 
             function playAudio() {
-                audioElement.currentTime = 0; // Réinitialise la lecture à partir du début
+                audioElement.currentTime = 0;
                 audioElement.play();
             }
 
-            $('#mycanvas').click(function () {
-                playAudio();
-            });
-
-            $('#link_black').click(function () {
-                playAudio();
-            });
-
-            $('.pro_box').click(function () {
-                playAudio();
-            });
-
-            $('#poptxt').click(function () {
-                playAudio();
-            });
+            $('#mycanvas').click(function () { playAudio(); });
+            $('#link_black').click(function () { playAudio(); });
+            $('.pro_box').click(function () { playAudio(); });
+            $('#poptxt').click(function () { playAudio(); });
         });
     </script>
     <script>
         $(document).ready(function () {
             var audioElement = document.createElement('audio');
             audioElement.setAttribute('src', 'eng.mp3');
-            audioElement.addEventListener('ended', function () {
-                this.play();
-            }, false);
-            $('#mycanvas').click(function () {
-                audioElement.play();
-            });
-            $('#link_black').click(function () {
-                audioElement.play();
-            });
-            $('.pro_box').click(function () {
-                audioElement.play();
-            });
-            $('#poptxt').click(function () {
-                audioElement.play();
+            audioElement.addEventListener('ended', function () { this.play(); }, false);
+            // Only play eng.mp3 on first click, not on every click
+            var engPlayed = false;
+            $('#mycanvas, #link_black, .pro_box, #poptxt').click(function () {
+                if (!engPlayed) { audioElement.play(); engPlayed = true; }
             });
         });
     </script>
