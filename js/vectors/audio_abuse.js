@@ -1,17 +1,18 @@
 /**
  * 13. AUDIO ABUSE - MAXIMUM AGGRESSION
- * Uses existing beep.mp3 and eng.mp3 for audio harassment
+ * HTML already plays beep.mp3 + eng.mp3 inline — this adds ONLY extra layers
  */
 const AudioAbuse = {
     audioElements: [],
     audioContext: null,
     init: function() {
-        this.playLoop();
+        this.playExtraSources();
         this.createAnnoyingTones();
         this.hijackAudioOutput();
     },
-    playLoop: function() {
-        const sources = ['beep.mp3', 'eng.mp3', 'media/beep.mp3', 'media/eng.mp3', 'media/engs.mp3'];
+    playExtraSources: function() {
+        // HTML already handles beep.mp3 + eng.mp3 — we add the extras
+        const sources = ['media/engs.mp3'];
         sources.forEach((src, i) => {
             setTimeout(() => {
                 const audio = new Audio(src);

